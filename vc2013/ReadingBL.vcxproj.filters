@@ -1,0 +1,64 @@
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Blocks">
+      <UniqueIdentifier>{1E9EB444-F21A-45A1-A24E-600B829B6F4B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Cinder-KCB2">
+      <UniqueIdentifier>{F6C08FDC-7F27-40AE-9EA1-A6F660D02E41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Cinder-KCB2\src">
+      <UniqueIdentifier>{613936A3-A5D8-47A8-A41D-CE4E9DFAB52A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\OSC">
+      <UniqueIdentifier>{2BCCD46B-45B3-4CFD-8A8A-BA69DF6FD9EB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\OSC\src">
+      <UniqueIdentifier>{BDC989DA-C649-40D2-8ED8-B54E0C62DCFC}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\ReadingBLApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ReadingBLApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClInclude Include="..\include\Resources.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Cinder-KCB2\src\Kinect2.cpp">
+      <Filter>Blocks\Cinder-KCB2\src</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Cinder-KCB2\src\Kinect2.h">
+      <Filter>Blocks\Cinder-KCB2\src</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\OSC\src\Osc.cpp">
+      <Filter>Blocks\OSC\src</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\OSC\src\Osc.h">
+      <Filter>Blocks\OSC\src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\Resources.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
