@@ -35,6 +35,7 @@ private:
 	
 	gl::Texture2dRef		mTextTexture;
 	TextLayout simple;
+	TextLayout simpleEmotion;
 	vec2				mSize;
 	Font				mFont;
 	std::string				emotion;
@@ -60,25 +61,27 @@ ReadingBLApp::ReadingBLApp() : App(), mReceiver(9000), mSender(8000, destination
 void ReadingBLApp::setup()
 {	
 	snapshot = false;
-	
+
+	mFont = Font("Times New Roman", 46);
+	mSize = vec2(250, 150);
+	simple.setFont(mFont);
+	simple.setColor(Color(1, 0, 0));
+	simple.addLine("Waiting...");
+	mTextTexture = gl::Texture2d::create(simple.render(true, false));
+
 	mSender.bind();
 	mReceiver.bind();
 	mReceiver.listen();
 	mReceiver.setListener("/prediction",
 		[&](const osc::Message &message) {
 		std::string s = message[0].string();
-		emotion = s;
+		TextLayout simpleEmotion;
+		simpleEmotion.setFont(mFont);
+		simpleEmotion.setColor(Color(1, 0, 0));
+		simpleEmotion.addLine(s);
+		mTextTexture = gl::Texture2d::create(simpleEmotion.render(true, false));
 		ci::app::console() << s << endl;
 	});
-
-	mFont = Font("Times New Roman", 32);
-	mSize = vec2(200, 100);
-	emotion = "Waiting...";
-	string txt = emotion;
-	simple.setFont(mFont);
-	simple.setColor(Color(1, 0, 0.1f));
-	simple.addLine(emotion);
-	mTextTexture = gl::Texture2d::create(simple.render(true, false));
 }
 
 void ReadingBLApp::render() {
