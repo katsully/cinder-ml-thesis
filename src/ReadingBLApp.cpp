@@ -39,6 +39,8 @@ private:
 	vec2				mSize;
 	Font				mFont;
 	std::string				emotion;
+
+	bool fullScreen;
 };
 
 ReadingBLApp::ReadingBLApp() : App(), mReceiver(9000), mSender(8000, destinationHost, destinationPort)
@@ -60,6 +62,9 @@ ReadingBLApp::ReadingBLApp() : App(), mReceiver(9000), mSender(8000, destination
 
 void ReadingBLApp::setup()
 {	
+	fullScreen = true;
+	setFullScreen(fullScreen);
+
 	snapshot = false;
 
 	mFont = Font("Times New Roman", 46);
@@ -93,6 +98,10 @@ void ReadingBLApp::keyDown( KeyEvent event )
 	char key = event.getChar();
 	if (key == 'a') {
 		snapshot = true;
+	}
+	else if (key == 'q') {
+		fullScreen = !fullScreen;
+		setFullScreen(fullScreen);
 	}
 }
 
