@@ -42,6 +42,8 @@ private:
 	vec2				mSize;
 	Font				mFont;
 	std::string				emotion;
+	std::string tempEmotion, prevEmotion;
+	int counter;
 
 	params::InterfaceGlRef	mParams;
 
@@ -70,6 +72,7 @@ void ReadingBLApp::setup()
 	setFullScreen(fullScreen);
 
 	snapshot = false;
+	counter = 0;
 
 	mFont = Font("Times New Roman", 46);
 	mSize = vec2(250, 150);
@@ -84,13 +87,21 @@ void ReadingBLApp::setup()
 	mReceiver.listen();
 	mReceiver.setListener("/prediction",
 		[&](const osc::Message &message) {
-		emotion = message[0].string();
+		tempEmotion = message[0].string();
+		if (tempEmotion != emotion && tempEmotion == prevEmotion) {
+			counter++;
+		}
+		if (counter > 20) {
+			counter = 0;
+			emotion = tempEmotion;
+		}
 		TextLayout simpleEmotion;
 		simpleEmotion.setFont(mFont);
 		simpleEmotion.setColor(Color(1, 0, 0));
 		simpleEmotion.addLine(emotion);
 		mTextTexture = gl::Texture2d::create(simpleEmotion.render(true, false));
 		ci::app::console() << emotion << endl;
+		prevEmotion = tempEmotion;
 	});
 
 	// Create the interface and give it a name.
