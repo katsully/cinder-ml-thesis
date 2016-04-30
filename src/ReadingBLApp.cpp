@@ -188,8 +188,8 @@ void ReadingBLApp::draw()
 							msg.append(to_string(joint.second.getOrientation().y));
 							msg.append(to_string(joint.second.getOrientation().z));
 							// indicate data is being recorded to the csv file
-							gl::color(0, 1, 0);
-							gl::drawSolidCircle(vec2(100, 100), 20);
+							// gl::color(0, 1, 0);
+							// gl::drawSolidCircle(vec2(100, 100), 20);
 						}
 						gl::drawSolidCircle(pos, 5.0f, 32);
 						vec2 parent(mDevice->mapCameraToDepth(body.getJointMap().at(joint.second.getParentJoint()).getPosition()));
@@ -197,8 +197,8 @@ void ReadingBLApp::draw()
 					}
 					else {
 						// warning signal
-						gl::color(1, 0, 0);
-						gl::drawSolidCircle(vec2(100, 100), 20);
+						// gl::color(1, 0, 0);
+						// gl::drawSolidCircle(vec2(100, 100), 20);
 						//msg.append("N/A,N/A,N/A,N/A,N/A,N/A,N/A,");
 						msg.append("N/A");
 					}
