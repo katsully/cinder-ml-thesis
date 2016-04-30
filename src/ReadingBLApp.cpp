@@ -5,6 +5,9 @@
 #include "Osc.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/Text.h"
+#include "cinder/params/Params.h"
+#include "../src/AntTweakBar/AntTweakBar.h"
+
 
 using namespace ci;
 using namespace ci::app;
@@ -21,14 +24,14 @@ class ReadingBLApp : public App {
 	void keyDown( KeyEvent event ) override;
 	void update() override;
 	void draw() override;
-	void render();
 private:
 	Kinect2::BodyFrame mBodyFrame;
 	ci::Channel8uRef mChannelBodyIndex;
 	ci::Channel16uRef mChannelDepth;
 	Kinect2::DeviceRef mDevice;
 
-	boolean snapshot;
+	bool snapshot;
+	bool fullScreen;
 
 	osc::SenderUdp mSender;
 	osc::ReceiverUdp mReceiver;
@@ -40,7 +43,8 @@ private:
 	Font				mFont;
 	std::string				emotion;
 
-	bool fullScreen;
+	params::InterfaceGlRef	mParams;
+
 };
 
 ReadingBLApp::ReadingBLApp() : App(), mReceiver(9000), mSender(8000, destinationHost, destinationPort)
@@ -69,9 +73,10 @@ void ReadingBLApp::setup()
 
 	mFont = Font("Times New Roman", 46);
 	mSize = vec2(250, 150);
+	emotion = "Waiting...";
 	simple.setFont(mFont);
 	simple.setColor(Color(1, 0, 0));
-	simple.addLine("Waiting...");
+	simple.addLine(emotion);
 	mTextTexture = gl::Texture2d::create(simple.render(true, false));
 
 	mSender.bind();
@@ -79,18 +84,23 @@ void ReadingBLApp::setup()
 	mReceiver.listen();
 	mReceiver.setListener("/prediction",
 		[&](const osc::Message &message) {
-		std::string s = message[0].string();
+		emotion = message[0].string();
 		TextLayout simpleEmotion;
 		simpleEmotion.setFont(mFont);
 		simpleEmotion.setColor(Color(1, 0, 0));
-		simpleEmotion.addLine(s);
+		simpleEmotion.addLine(emotion);
 		mTextTexture = gl::Texture2d::create(simpleEmotion.render(true, false));
-		ci::app::console() << s << endl;
+		ci::app::console() << emotion << endl;
 	});
-}
 
-void ReadingBLApp::render() {
-	
+	// Create the interface and give it a name.
+	mParams = params::InterfaceGl::create(getWindow(), "App parameters", toPixels(ivec2(300, 200)));
+	TwDefine(" GLOBAL fontsize=3 ");
+	TwDefine(" GLOBAL fontscaling=2 ");
+	mParams->addParam("Screen", &fullScreen).updateFn([this] {setFullScreen(fullScreen); });
+	mParams->addParam("Analyze Body Language", &snapshot);
+	mParams->addParam("Emotion: ", &emotion).updateFn([this] { console() << "new value: " << emotion << endl; });
+
 }
 
 void ReadingBLApp::keyDown( KeyEvent event )
@@ -100,8 +110,7 @@ void ReadingBLApp::keyDown( KeyEvent event )
 		snapshot = true;
 	}
 	else if (key == 'q') {
-		fullScreen = !fullScreen;
-		setFullScreen(fullScreen);
+		
 	}
 }
 
@@ -192,7 +201,8 @@ void ReadingBLApp::draw()
 			}
 		}
 	}
-	
+	// Draw the interface
+	mParams->draw();	
 }
 
 CINDER_APP( ReadingBLApp, RendererGl )
