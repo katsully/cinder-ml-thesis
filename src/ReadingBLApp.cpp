@@ -32,6 +32,7 @@ private:
 
 	bool snapshot;
 	bool fullScreen;
+	bool bodies;
 
 	osc::SenderUdp mSender;
 	osc::ReceiverUdp mReceiver;
@@ -44,6 +45,7 @@ private:
 	std::string				emotion;
 	std::string tempEmotion, prevEmotion;
 	int counter;
+	Color clrRing;
 
 	params::InterfaceGlRef	mParams;
 
@@ -72,15 +74,19 @@ void ReadingBLApp::setup()
 	setFullScreen(fullScreen);
 
 	snapshot = false;
+	bodies = false;
 	counter = 0;
 
-	mFont = Font("Times New Roman", 46);
-	mSize = vec2(250, 150);
-	emotion = "Waiting...";
-	simple.setFont(mFont);
-	simple.setColor(Color(1, 0, 0));
-	simple.addLine(emotion);
-	mTextTexture = gl::Texture2d::create(simple.render(true, false));
+	emotion = "";
+	clrRing = ColorA::white();
+
+	//mFont = Font("Times New Roman", 46);
+	//mSize = vec2(250, 150);
+	//emotion = "Waiting...";
+	//simple.setFont(mFont);
+	//simple.setColor(Color(1, 0, 0));
+	//simple.addLine(emotion);
+	//mTextTexture = gl::Texture2d::create(simple.render(true, false));
 
 	mSender.bind();
 	mReceiver.bind();
@@ -93,24 +99,34 @@ void ReadingBLApp::setup()
 		}
 		if (counter > 20) {
 			counter = 0;
-			emotion = tempEmotion;
+			if (tempEmotion == "bad data") {
+				emotion = "Processing...";
+			}
+			else {
+				emotion = tempEmotion;
+			}
 		}
-		TextLayout simpleEmotion;
+		/*TextLayout simpleEmotion;
 		simpleEmotion.setFont(mFont);
 		simpleEmotion.setColor(Color(1, 0, 0));
 		simpleEmotion.addLine(emotion);
-		mTextTexture = gl::Texture2d::create(simpleEmotion.render(true, false));
+		mTextTexture = gl::Texture2d::create(simpleEmotion.render(true, false));*/
 		ci::app::console() << emotion << endl;
 		prevEmotion = tempEmotion;
 	});
 
 	// Create the interface and give it a name.
-	mParams = params::InterfaceGl::create(getWindow(), "App parameters", toPixels(ivec2(300, 200)));
+	mParams = params::InterfaceGl::create(getWindow(), "Parameters", toPixels(ivec2(325, 200)));
 	TwDefine(" GLOBAL fontsize=3 ");
 	TwDefine(" GLOBAL fontscaling=2 ");
-	mParams->addParam("Screen", &fullScreen).updateFn([this] {setFullScreen(fullScreen); });
+	TwDefine("Parameters valueswidth=150 "); // column width fits content
+	mParams->addParam("Full Screen", &fullScreen).updateFn([this] {setFullScreen(fullScreen); });
 	mParams->addParam("Analyze Body Language", &snapshot);
+	mParams->addSeparator();
 	mParams->addParam("Emotion: ", &emotion).updateFn([this] { console() << "new value: " << emotion << endl; });
+	mParams->addSeparator();
+	mParams->addParam("color", &clrRing, "opened=true");
+	
 
 }
 
@@ -140,11 +156,12 @@ void ReadingBLApp::draw()
 	gl::disableDepthRead();
 	gl::disableDepthWrite();
 
+	bodies = false;
+
 	if (mChannelDepth) {
 		gl::enable(GL_TEXTURE_2D);
 		const gl::TextureRef tex = gl::Texture::create(*Kinect2::channel16To8(mChannelDepth));
 		gl::draw(tex, tex->getBounds(), Rectf(getWindowBounds()));
-		gl::draw(mTextTexture);
 	}
 
 	if (mChannelBodyIndex) {
@@ -174,7 +191,8 @@ void ReadingBLApp::draw()
 		gl::disable(GL_TEXTURE_2D);
 		for (const Kinect2::Body &body : mBodyFrame.getBodies()) {
 			if (body.isTracked()) {
-				gl::color(ColorAf::white());
+				bodies = true;
+				gl::color(clrRing);
 				osc::Message msg("/skeletal_data");
 				for (const auto& joint : body.getJointMap()) {
 					if (joint.second.getTrackingState() == TrackingState::TrackingState_Tracked) {
@@ -187,19 +205,13 @@ void ReadingBLApp::draw()
 							msg.append(to_string(joint.second.getOrientation().x));
 							msg.append(to_string(joint.second.getOrientation().y));
 							msg.append(to_string(joint.second.getOrientation().z));
-							// indicate data is being recorded to the csv file
-							// gl::color(0, 1, 0);
-							// gl::drawSolidCircle(vec2(100, 100), 20);
 						}
 						gl::drawSolidCircle(pos, 5.0f, 32);
 						vec2 parent(mDevice->mapCameraToDepth(body.getJointMap().at(joint.second.getParentJoint()).getPosition()));
 						gl::drawLine(pos, parent);
 					}
 					else {
-						// warning signal
-						// gl::color(1, 0, 0);
-						// gl::drawSolidCircle(vec2(100, 100), 20);
-						//msg.append("N/A,N/A,N/A,N/A,N/A,N/A,N/A,");
+						emotion = "Processing...";
 						msg.append("N/A");
 					}
 				}
@@ -212,6 +224,11 @@ void ReadingBLApp::draw()
 			}
 		}
 	}
+
+	if (!bodies) {
+		emotion = "";
+	}
+	
 	// Draw the interface
 	mParams->draw();	
 }
